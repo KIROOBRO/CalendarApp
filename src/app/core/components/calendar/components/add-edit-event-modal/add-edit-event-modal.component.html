@@ -1,0 +1,66 @@
+<div class="modal-header">
+  <h2 class="modal-header__title">{{ getHeaderName }}</h2>
+  <mat-icon (click)="closeModal()">close</mat-icon>
+</div>
+<div class="modal-body">
+  <form class="form-wrapper">
+    <mat-form-field>
+      <mat-label>Enter the name of event</mat-label>
+      <input
+        matInput
+        type="text"
+        [formControl]="formGroup.get(EControlNames.NAME) | controlConverter"
+      />
+      <button
+        *ngIf="formGroup.get(EControlNames.NAME) | controlConverter"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear"
+        (click)="clearName()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Enter a date range</mat-label>
+      <mat-date-range-input [required]="true" [rangePicker]="picker">
+        <input
+          matStartDate
+          placeholder="Start date"
+          [formControl]="
+            formGroup.get(EControlNames.START_DATE) | controlConverter
+          "
+        />
+        <input
+          matEndDate
+          placeholder="End date"
+          [formControl]="
+            formGroup.get(EControlNames.END_DATE) | controlConverter
+          "
+        />
+      </mat-date-range-input>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+
+    <mat-checkbox
+      [formControl]="formGroup.get(EControlNames.IS_HOLIDAY) | controlConverter"
+    >
+      Is holiday
+    </mat-checkbox>
+  </form>
+</div>
+<div class="modal-footer">
+  <button mat-raised-button (click)="closeModal()">Cancel</button>
+  <button
+    mat-raised-button
+    [disabled]="!formGroup.valid"
+    (click)="handleSubmit()"
+  >
+    Submit
+  </button>
+</div>

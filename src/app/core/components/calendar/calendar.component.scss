@@ -1,0 +1,92 @@
+@import "src/assets/styles/vars";
+@import "src/assets/styles/mixins";
+
+.calendar {
+  width: 80%;
+  padding: 20px;
+  border: 1px solid $black;
+  border-radius: 12px;
+
+  &-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &-header {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &__text {
+      @include font-base(50px, 600, 55px, normal, $caveat);
+
+      color: $black;
+    }
+  }
+
+  &-toolbar {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &-body {
+    padding: 10px;
+    border: 1px solid $grey;
+    border-radius: 5px;
+
+    & table {
+      width: 100%;
+    }
+  }
+}
+
+.month-calendar,
+.week-calendar {
+  width: 100%;
+  border-collapse: collapse;
+
+  & th, td {
+    width: 90px;
+    height: 90px;
+    padding: 10px;
+    text-align: center;
+    cursor: default;
+  }
+
+  & td {
+    &:hover {
+      cursor: pointer;
+      background: $grey-hover;
+    }
+  }
+
+  & .mock-day {
+    cursor: default;
+  }
+
+  & .day {
+    @include font-base(20px, 600, 25px, normal, $montserrat);
+
+    color: $black;
+
+    &.grey {
+      opacity: .5;
+      color: $grey;
+    }
+  }
+
+  & .today {
+    background-color: $blue;
+    color: $white;
+
+    &:hover {
+      background-color: $blue-hover;
+    }
+  }
+}

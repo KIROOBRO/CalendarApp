@@ -1,0 +1,12 @@
+@import "src/assets/styles/vars";
+@import "src/assets/styles/mixins";
+
+::ng-deep .add-edit-event-modal {
+  @include base-modal();
+
+  & .form-wrapper {
+    gap: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+}

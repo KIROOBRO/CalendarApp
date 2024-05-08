@@ -1,0 +1,96 @@
+<div class="calendar-container">
+  <div class="calendar">
+    <div class="calendar-header">
+      <button mat-raised-button (click)="handlePrevious()">Previous</button>
+      <h2 class="calendar-header__text">{{ viewDate | date: 'MMMM yyyy' }}</h2>
+      <button mat-raised-button (click)="handleNext()">Next</button>
+    </div>
+    <div class="calendar-toolbar">
+      <button mat-flat-button (click)="changeView(ECalendarViewType.MONTH)">
+        Switch to month view
+      </button>
+      <button mat-flat-button (click)="handleAddEditEvent()">Add event</button>
+      <button mat-flat-button (click)="changeView(ECalendarViewType.WEEK)">
+        Switch to week view
+      </button>
+    </div>
+    <div class="calendar-body">
+      <ng-container [ngSwitch]="viewType">
+        <ng-container *ngSwitchCase="ECalendarViewType.WEEK">
+          <table class="week-calendar">
+            <thead>
+              <tr>
+                <th *ngFor="let day of MOK_DAYS_IN_WEEK" class="mock-day">
+                  <p class="day">{{ day }}</p>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td
+                  *ngFor="let day of currentWeek.days"
+                  [ngClass]="{ today: day.isToday }"
+                  (click)="handleAddEditEvent(day.event)"
+                >
+                  <p class="day">{{ day.dayOfMonth }}</p>
+
+                  <pre>{{ events$ | async | json }}</pre>
+                  <div
+                    *ngIf="events$ | async as events"
+                    class="event-container"
+                  >
+                    <p
+                      *ngFor="
+                        let event of events.get(
+                          (day.date | date: 'YYYY-MM-DD') || ''
+                        )
+                      "
+                      class="event"
+                    >
+                      {{ event.name }}
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+        <ng-container *ngSwitchCase="ECalendarViewType.MONTH">
+          <table class="month-calendar">
+            <thead>
+              <tr>
+                <th *ngFor="let day of MOK_DAYS_IN_WEEK">
+                  <p class="day">{{ day }}</p>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let week of weeksInMonth">
+                <td
+                  *ngFor="let day of week.days"
+                  [class.today]="day.isToday"
+                  (click)="handleAddEditEvent(day.event)"
+                >
+                  <p class="day" [class.grey]="day.isNotInThisMonth">
+                    {{ day.dayOfMonth }}
+                  </p>
+
+                  <ng-container *ngIf="events$ | async as events">
+                    <div *ngIf="events?.get(day.date)" class="event-container">
+                      <p
+                        *ngFor="let event of events.get(day.date)"
+                        class="event"
+                      >
+                        {{ event.name }}
+                      </p>
+                    </div>
+                  </ng-container>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+</div>

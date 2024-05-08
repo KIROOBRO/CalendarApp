@@ -1,0 +1,68 @@
+@import "vars";
+
+@mixin font-base(
+  $size: $font-size-base,
+  $font-weight: 400,
+  $height: $line-height-base,
+  $font-style: normal,
+  $font-family: $caveat,
+) {
+  font: $font-weight $font-style #{$size}/#{$height $font-family};
+}
+
+@mixin base-modal($width: 685px) {
+  .mat-mdc-dialog-content {
+    padding: 0;
+    margin: 0;
+  }
+
+  .mat-mdc-dialog-container {
+    width: $width;
+    max-width: $width;
+    max-height: 90vh;
+    min-height: 180px;
+    padding: 0;
+    border-radius: 12px;
+    background: $white;
+    overflow-y: hidden;
+  }
+
+  .modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid $grey;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &__title {
+      @include font-base(21px, 500, 26px, normal, $montserrat);
+
+      color: $black;
+    }
+
+    &__icon {
+      cursor: pointer;
+    }
+  }
+
+  .modal-body {
+    min-height: 100px;
+    max-height: calc(90vh - 135px);
+    padding: 24px 20px;
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid $grey;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 24px;
+
+    & button {
+      width: 180px;
+      height: 44px;
+    }
+  }
+}
