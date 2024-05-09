@@ -1,0 +1,40 @@
+@import "src/assets/styles/vars";
+@import "src/assets/styles/mixins";
+
+.drop-down-menu {
+  width: 100% !important;
+  min-height: 44px !important;
+  background: $white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 8px rgba(142, 141, 208, 0.16);
+  overflow: hidden !important;
+
+  & .mat-mdc-menu-content {
+    padding: 0 !important;
+  }
+
+  & .item {
+    height: 44px;
+    padding: 0 16px;
+    background: $white;
+    gap: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+
+    &__text {
+      @include font-base(15px, 500, 20px, normal, $montserrat);
+
+      width: calc(100% - 20px);
+      color: $black;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    &:hover {
+      background: $blue-hover;
+    }
+  }
+}
