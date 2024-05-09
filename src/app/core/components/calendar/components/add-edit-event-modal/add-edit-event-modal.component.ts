@@ -15,10 +15,11 @@ import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
   MomentDateAdapter,
 } from '@angular/material-moment-adapter';
+import { EControlNames } from 'src/app/core/enums';
+import { IEvent } from 'src/app/core/interfaces';
 
-import { EControlNames } from '../../../../enums/e-control-names';
-import { IEvent } from '../../../../interfaces/i-event';
 import { NgOnDestroy } from '../../../../services/ng-on-destroy.service';
+import { generateUniqueId } from '../../../../utils/functions';
 
 export const MY_FORMATS = {
   parse: {
@@ -59,7 +60,7 @@ export class AddEditEventModalComponent implements OnInit {
   ) {}
 
   public get getHeaderName(): string {
-    return this.data ? 'Edit specialty name' : 'Add specialty';
+    return this.data ? 'Edit event' : 'Add event';
   }
 
   ngOnInit(): void {
@@ -72,7 +73,10 @@ export class AddEditEventModalComponent implements OnInit {
   }
 
   public handleSubmit(): void {
-    this.dialogRef.close(this.formGroup.getRawValue());
+    this.dialogRef.close({
+      id: this.data?.id || generateUniqueId(),
+      ...this.formGroup.getRawValue(),
+    });
   }
 
   public clearName(): void {

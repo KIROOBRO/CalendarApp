@@ -1,22 +1,25 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   OnInit,
   Self,
+  TrackByFunction,
 } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { filter, takeUntil } from 'rxjs';
 
-import { ECalendarViewType } from '../../enums/e-calendar-view-type';
+import { ECalendarViewType } from '../../enums';
 import { MomentDateHelper } from '../../helpers/moment-date.helper';
-import { ICurrentWeek } from '../../interfaces/i-current-week';
-import { IEvent } from '../../interfaces/i-event';
+import { ICurrentWeek, IDay, IEvent } from '../../interfaces';
 import { CalendarService } from '../../services/calendar.service';
 import { NgOnDestroy } from '../../services/ng-on-destroy.service';
 import { TCalendarViewType } from '../../types/t-calendar-view.type';
+import { trackByFnById } from '../../utils/functions';
 
 import { AddEditEventModalComponent } from './components/add-edit-event-modal/add-edit-event-modal.component';
+import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { MOK_DAYS_IN_WEEK } from './constants/mok-days-in-week';
 
 @Component({
@@ -30,6 +33,7 @@ export class CalendarComponent implements OnInit {
   public events$ = this.calendarService.getEvents;
 
   public ECalendarViewType = ECalendarViewType;
+  public MOK_DAYS_IN_WEEK = MOK_DAYS_IN_WEEK;
 
   public viewType: TCalendarViewType = 'month';
   public viewDate = MomentDateHelper.getCurrentDate();
@@ -37,16 +41,21 @@ export class CalendarComponent implements OnInit {
     days: [],
   };
 
-  public MOK_DAYS_IN_WEEK = MOK_DAYS_IN_WEEK;
-
   public weeksInMonth: ICurrentWeek[] = [];
+
+  public trackByFnEvents: TrackByFunction<IEvent> = trackByFnById;
 
   constructor(
     @Self() private readonly ngOnDestroy$: NgOnDestroy,
     private dialog: MatDialog,
+    private alert: MatSnackBar,
     private calendarService: CalendarService,
-    private cdr: ChangeDetectorRef,
   ) {}
+
+  public trackByFnByIdx: TrackByFunction<string> = (idx: number) => idx;
+  public trackByFnWeeks: TrackByFunction<ICurrentWeek> = (idx: number) => idx;
+  public trackByFnDays: TrackByFunction<IDay> = (idx: number, item: IDay) =>
+    item.date;
 
   ngOnInit(): void {
     this.calendarService.initCalendarData();
@@ -73,12 +82,18 @@ export class CalendarComponent implements OnInit {
     this.generateCalendar();
   }
 
-  public changeView(viewType: ECalendarViewType): void {
-    this.viewType = viewType;
+  public changeView(event: MatSlideToggleChange): void {
+    this.viewType = event.checked
+      ? ECalendarViewType.WEEK
+      : ECalendarViewType.MONTH;
+
     this.generateCalendar();
   }
 
-  public handleAddEditEvent(event: IEvent | null = null): void {
+  public handleAddEditEvent(
+    event: IEvent | null = null,
+    eventDate: string | null = null,
+  ): void {
     const dialogConfig = new MatDialogConfig<IEvent>();
     dialogConfig.autoFocus = false;
     dialogConfig.data = event;
@@ -88,17 +103,42 @@ export class CalendarComponent implements OnInit {
       .afterClosed()
       .pipe(filter(Boolean), takeUntil(this.ngOnDestroy$))
       .subscribe((res: IEvent) => {
-        this.calendarService.saveSlot(res);
-        // this.slots.push(newSlot);
+        if (event) {
+          this.calendarService.editEvent(res, eventDate as string);
+
+          this.alert.open(
+            'The event has been successfully edited!',
+            'Success',
+            {
+              duration: 5000,
+            },
+          );
+          return;
+        }
+
+        this.calendarService.addEvent(res);
+        this.alert.open('The event has been successfully added!', 'Success', {
+          duration: 5000,
+        });
       });
   }
 
-  public editSlot(slotId: number): void {
-    // Логика редактирования слота
-  }
+  public handleDeleteEvent(event: IEvent, eventDate: string): void {
+    const dialogConfig = new MatDialogConfig<IEvent>();
+    dialogConfig.autoFocus = false;
+    dialogConfig.data = event;
 
-  public deleteSlot(slotId: number): void {
-    this.calendarService.deleteSlot(slotId);
+    this.dialog
+      .open(ConfirmModalComponent, dialogConfig)
+      .afterClosed()
+      .pipe(filter(Boolean), takeUntil(this.ngOnDestroy$))
+      .subscribe(() => {
+        this.calendarService.deleteEvent(event.id, eventDate);
+
+        this.alert.open('The event has been successfully deleted!', 'Success', {
+          duration: 5000,
+        });
+      });
   }
 
   private generateCalendar(): void {

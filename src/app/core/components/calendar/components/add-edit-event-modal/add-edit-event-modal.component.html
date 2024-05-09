@@ -1,6 +1,11 @@
 <div class="modal-header">
   <h2 class="modal-header__title">{{ getHeaderName }}</h2>
-  <mat-icon (click)="closeModal()">close</mat-icon>
+  <mat-icon
+    class="modal-header__icon"
+    [color]="'primary'"
+    [fontIcon]="'close'"
+    (click)="closeModal()"
+  ></mat-icon>
 </div>
 <div class="modal-body">
   <form class="form-wrapper">
@@ -58,6 +63,7 @@
   <button mat-raised-button (click)="closeModal()">Cancel</button>
   <button
     mat-raised-button
+    [color]="'primary'"
     [disabled]="!formGroup.valid"
     (click)="handleSubmit()"
   >

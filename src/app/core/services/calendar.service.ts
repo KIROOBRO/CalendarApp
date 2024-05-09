@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 import { MomentDateHelper } from '../helpers/moment-date.helper';
-import { IEvent } from '../interfaces/i-event';
+import { IEvent } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -28,34 +28,43 @@ export class CalendarService {
     this.eventsSubject.next(this.eventMap);
   }
 
-  public saveSlot(event: IEvent): void {
-    const test = MomentDateHelper.getDaysBetweenDates(event);
+  public addEvent(event: IEvent): void {
+    const daysBetweenDates = MomentDateHelper.getDaysBetweenDates(event);
 
-    test.forEach((el: string) => {
+    daysBetweenDates.forEach((el: string) => {
       const value = [...(this.eventMap.get(el) || []), event];
 
       this.eventMap.set(el, value);
     });
 
     this.eventsSubject.next(this.eventMap);
+    this.setItemInLocalStorage();
+  }
+
+  public editEvent(event: IEvent, eventDate: string): void {
+    const updatedEventMap =
+      this.eventMap
+        .get(eventDate)
+        ?.map((el) => (el.id === event.id ? event : el)) || [];
+
+    this.eventMap.set(eventDate, updatedEventMap);
+    this.eventsSubject.next(this.eventMap);
+    this.setItemInLocalStorage();
+  }
+
+  public deleteEvent(eventId: number, eventDate: string): void {
+    const updatedEventMap =
+      this.eventMap.get(eventDate)?.filter((el) => el.id !== eventId) || [];
+
+    this.eventMap.set(eventDate, updatedEventMap);
+    this.eventsSubject.next(this.eventMap);
+    this.setItemInLocalStorage();
+  }
+
+  private setItemInLocalStorage(): void {
     localStorage.setItem(
       this.storageKey,
       JSON.stringify([...this.eventMap.entries()]),
     );
-  }
-
-  public updateSlot(slotId: number, newSlot: any): void {
-    // const slots = this.getSlots();
-    // const index = slots.findIndex((slot) => slot.id === slotId);
-    // if (index !== -1) {
-    //   slots[index] = newSlot;
-    //   localStorage.setItem(this.storageKey, JSON.stringify(slots));
-    // }
-  }
-
-  public deleteSlot(slotId: number): void {
-    // let slots = this.getSlots();
-    // slots = slots.filter((slot) => slot.id !== slotId);
-    // localStorage.setItem(this.storageKey, JSON.stringify(slots));
   }
 }

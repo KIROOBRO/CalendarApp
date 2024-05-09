@@ -6,50 +6,124 @@
       <button mat-raised-button (click)="handleNext()">Next</button>
     </div>
     <div class="calendar-toolbar">
-      <button mat-flat-button (click)="changeView(ECalendarViewType.MONTH)">
-        Switch to month view
-      </button>
-      <button mat-flat-button (click)="handleAddEditEvent()">Add event</button>
-      <button mat-flat-button (click)="changeView(ECalendarViewType.WEEK)">
-        Switch to week view
+      <mat-slide-toggle
+        class="example-margin"
+        [color]="'primary'"
+        [checked]="false"
+        (change)="changeView($event)"
+      >
+        Week view
+      </mat-slide-toggle>
+
+      <button
+        mat-flat-button
+        [color]="'primary'"
+        (click)="handleAddEditEvent()"
+      >
+        Add event
       </button>
     </div>
-    <div class="calendar-body">
+    <div
+      class="calendar-body"
+      [class.large]="viewType === ECalendarViewType.MONTH"
+    >
       <ng-container [ngSwitch]="viewType">
         <ng-container *ngSwitchCase="ECalendarViewType.WEEK">
           <table class="week-calendar">
             <thead>
               <tr>
-                <th *ngFor="let day of MOK_DAYS_IN_WEEK" class="mock-day">
-                  <p class="day">{{ day }}</p>
+                <th
+                  *ngFor="let day of MOK_DAYS_IN_WEEK; trackBy: trackByFnByIdx"
+                  class="mock-day"
+                >
+                  <div class="day-wrapper">
+                    <p class="day">{{ day }}</p>
+                  </div>
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td
-                  *ngFor="let day of currentWeek.days"
+                  *ngFor="let day of currentWeek.days; trackBy: trackByFnDays"
                   [ngClass]="{ today: day.isToday }"
-                  (click)="handleAddEditEvent(day.event)"
                 >
-                  <p class="day">{{ day.dayOfMonth }}</p>
-
-                  <pre>{{ events$ | async | json }}</pre>
-                  <div
-                    *ngIf="events$ | async as events"
-                    class="event-container"
-                  >
+                  <div class="day-wrapper">
                     <p
-                      *ngFor="
-                        let event of events.get(
-                          (day.date | date: 'YYYY-MM-DD') || ''
-                        )
-                      "
-                      class="event"
+                      class="day"
+                      [ngClass]="{
+                        today: day.isToday,
+                        grey: day.isNotInThisMonth
+                      }"
                     >
-                      {{ event.name }}
+                      {{ day.dayOfMonth }}
                     </p>
                   </div>
+
+                  <ng-container *ngIf="events$ | async as events">
+                    <div *ngIf="events?.get(day.date)" class="event-container">
+                      <div
+                        *ngFor="
+                          let event of events.get(day.date) | slice: 0 : 2;
+                          trackBy: trackByFnEvents
+                        "
+                        [matTooltip]="event.is_holiday ? 'Holiday!' : ''"
+                        [class.holiday]="event.is_holiday"
+                        class="event-wrapper"
+                      >
+                        <p
+                          class="event"
+                          (click)="handleAddEditEvent(event, day.date)"
+                        >
+                          {{ event.name }}
+                        </p>
+
+                        <mat-icon
+                          class="event__icon"
+                          [fontIcon]="'close'"
+                          (click)="
+                            $event.stopImmediatePropagation();
+                            handleDeleteEvent(event, day.date)
+                          "
+                        ></mat-icon>
+                      </div>
+
+                      <div
+                        *ngIf="(events.get(day.date)?.length ?? 0) > 2"
+                        [matMenuTriggerFor]="menu"
+                        class="show-more"
+                      >
+                        Show more ({{ events.get(day.date)?.length }})
+                      </div>
+
+                      <mat-menu #menu="matMenu" class="drop-down-menu">
+                        <div
+                          *ngFor="
+                            let event of events.get(day.date);
+                            trackBy: trackByFnEvents
+                          "
+                          class="item"
+                          (click)="
+                            $event.stopImmediatePropagation();
+                            handleAddEditEvent(event, day.date)
+                          "
+                        >
+                          <p class="item__text">
+                            {{ event.name }}
+                          </p>
+
+                          <mat-icon
+                            [color]="'primary'"
+                            [fontIcon]="'close'"
+                            (click)="
+                              $event.stopImmediatePropagation();
+                              handleDeleteEvent(event, day.date)
+                            "
+                          ></mat-icon>
+                        </div>
+                      </mat-menu>
+                    </div>
+                  </ng-container>
                 </td>
               </tr>
             </tbody>
@@ -59,32 +133,97 @@
           <table class="month-calendar">
             <thead>
               <tr>
-                <th *ngFor="let day of MOK_DAYS_IN_WEEK">
-                  <p class="day">{{ day }}</p>
+                <th
+                  *ngFor="let day of MOK_DAYS_IN_WEEK; trackBy: trackByFnByIdx"
+                >
+                  <div class="day-wrapper">
+                    <p class="day">{{ day }}</p>
+                  </div>
                 </th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let week of weeksInMonth">
-                <td
-                  *ngFor="let day of week.days"
-                  [class.today]="day.isToday"
-                  (click)="handleAddEditEvent(day.event)"
-                >
-                  <p class="day" [class.grey]="day.isNotInThisMonth">
-                    {{ day.dayOfMonth }}
-                  </p>
+              <tr *ngFor="let week of weeksInMonth; trackBy: trackByFnWeeks">
+                <td *ngFor="let day of week.days; trackBy: trackByFnDays">
+                  <div class="day-wrapper">
+                    <p
+                      class="day"
+                      [ngClass]="{
+                        today: day.isToday,
+                        grey: day.isNotInThisMonth
+                      }"
+                    >
+                      {{ day.dayOfMonth }}
+                    </p>
 
-                  <ng-container *ngIf="events$ | async as events">
-                    <div *ngIf="events?.get(day.date)" class="event-container">
-                      <p
-                        *ngFor="let event of events.get(day.date)"
-                        class="event"
+                    <ng-container *ngIf="events$ | async as events">
+                      <div
+                        *ngIf="events?.get(day.date)"
+                        class="event-container"
                       >
-                        {{ event.name }}
-                      </p>
-                    </div>
-                  </ng-container>
+                        <div
+                          *ngFor="
+                            let event of events.get(day.date) | slice: 0 : 2;
+                            trackBy: trackByFnEvents
+                          "
+                          [matTooltip]="event.is_holiday ? 'Holiday!' : ''"
+                          [class.holiday]="event.is_holiday"
+                          class="event-wrapper"
+                        >
+                          <p
+                            class="event"
+                            (click)="handleAddEditEvent(event, day.date)"
+                          >
+                            {{ event.name }}
+                          </p>
+
+                          <mat-icon
+                            class="event__icon"
+                            [fontIcon]="'close'"
+                            (click)="
+                              $event.stopImmediatePropagation();
+                              handleDeleteEvent(event, day.date)
+                            "
+                          ></mat-icon>
+                        </div>
+
+                        <div
+                          *ngIf="(events.get(day.date)?.length ?? 0) > 2"
+                          [matMenuTriggerFor]="menu"
+                          class="show-more"
+                        >
+                          Show more ({{ events.get(day.date)?.length }})
+                        </div>
+
+                        <mat-menu #menu="matMenu" class="drop-down-menu">
+                          <div
+                            *ngFor="
+                              let event of events.get(day.date);
+                              trackBy: trackByFnEvents
+                            "
+                            class="item"
+                            (click)="
+                              $event.stopImmediatePropagation();
+                              handleAddEditEvent(event, day.date)
+                            "
+                          >
+                            <p class="item__text">
+                              {{ event.name }}
+                            </p>
+
+                            <mat-icon
+                              [color]="'primary'"
+                              [fontIcon]="'close'"
+                              (click)="
+                                $event.stopImmediatePropagation();
+                                handleDeleteEvent(event, day.date)
+                              "
+                            ></mat-icon>
+                          </div>
+                        </mat-menu>
+                      </div>
+                    </ng-container>
+                  </div>
                 </td>
               </tr>
             </tbody>

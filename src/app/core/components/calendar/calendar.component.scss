@@ -2,7 +2,7 @@
 @import "src/assets/styles/mixins";
 
 .calendar {
-  width: 80%;
+  width: 90%;
   padding: 20px;
   border: 1px solid $black;
   border-radius: 12px;
@@ -32,13 +32,18 @@
     margin-bottom: 10px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
   }
 
   &-body {
+    height: 22vh;
     padding: 10px;
     border: 1px solid $grey;
     border-radius: 5px;
+
+    &.large {
+      height: 75vh;
+    }
 
     & table {
       width: 100%;
@@ -49,20 +54,25 @@
 .month-calendar,
 .week-calendar {
   width: 100%;
-  border-collapse: collapse;
+  height: 100%;
 
   & th, td {
+    position: relative;
     width: 90px;
     height: 90px;
     padding: 10px;
+    border: 1px dashed $white;
     text-align: center;
     cursor: default;
   }
 
+  & th {
+    height: 60px;
+  }
+
   & td {
     &:hover {
-      cursor: pointer;
-      background: $grey-hover;
+      border: 1px dashed $grey-hover !important;
     }
   }
 
@@ -71,22 +81,80 @@
   }
 
   & .day {
-    @include font-base(20px, 600, 25px, normal, $montserrat);
+    @include font-base(15px, 600, 20px, normal, $montserrat);
 
     color: $black;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &-wrapper {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+    }
 
     &.grey {
       opacity: .5;
       color: $grey;
     }
-  }
 
-  & .today {
-    background-color: $blue;
-    color: $white;
-
-    &:hover {
-      background-color: $blue-hover;
+    &.today {
+      border-radius: 50%;
+      background-color: $blue;
+      color: $white;
     }
   }
+}
+
+.event {
+  @include font-base(15px, 500, 20px, normal, $montserrat);
+
+  width: calc(100% - 10px);
+  color: $black;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+
+  &-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    gap: 2px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-wrapper {
+    background: $green;
+    border-radius: 3px;
+    cursor: pointer;
+    text-align: left;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &.holiday {
+      background: $blue2 !important;
+    }
+  }
+
+  &__icon {
+    color: $white;
+  }
+}
+
+.show-more {
+  @include font-base(15px, 500, 20px, normal, $montserrat);
+
+  color: $black;
+  background: $white;
+  border: 1px solid $grey;
+  border-radius: 3px;
+  cursor: pointer;
 }

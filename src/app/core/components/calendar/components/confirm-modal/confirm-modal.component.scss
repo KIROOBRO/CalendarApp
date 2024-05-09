@@ -1,0 +1,53 @@
+@import "src/assets/styles/vars";
+@import "src/assets/styles/mixins";
+
+::ng-deep .confirm-modal {
+  @include base-modal(500px);
+
+  & .delete-modal-header {
+    padding: 24px 20px 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    &__icon {
+      cursor: pointer;
+    }
+  }
+
+  & .modal-body {
+    padding: 0 20px 24px 20px;
+  }
+
+  & .text {
+    &-main {
+      @include font-base(35px, 500, 40px, normal, $caveat);
+
+      color: $black;
+      margin-bottom: 20px;
+      text-align: center;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    &-secondary {
+      @include font-base(15px, 500, 20px, normal, $montserrat);
+
+      color: $black;
+      margin-bottom: 38px;
+      text-align: center;
+    }
+  }
+
+  & .actions {
+    gap: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    & .btn {
+      width: 50%;
+    }
+  }
+}

@@ -1,0 +1,29 @@
+<div class="delete-modal-header">
+  <mat-icon
+    class="delete-modal-header__icon"
+    [color]="'primary'"
+    [fontIcon]="'close'"
+    (click)="closeModal()"
+  ></mat-icon>
+</div>
+<div class="modal-body">
+  <p class="text-main">Delete {{ modalData.name }}</p>
+  <p class="text-secondary">
+    You are about to delete this event. <br />
+    Are you sure you want to delete?
+  </p>
+
+  <div class="actions">
+    <button class="btn" mat-button (click)="closeModal()">
+      Don't delete the event
+    </button>
+    <button
+      class="btn"
+      mat-raised-button
+      [color]="'primary'"
+      (click)="closeModal(true)"
+    >
+      Delete the event
+    </button>
+  </div>
+</div>
